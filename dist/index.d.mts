@@ -236,6 +236,7 @@ declare class RNCallKeep {
     backToForeground(): void;
     getInitialEvents(): Promise<InitialEvents>;
     clearInitialEvents(): void;
+    fulfillAction(action: string, callUUID: string): void;
 }
 declare const _default: RNCallKeep;
 

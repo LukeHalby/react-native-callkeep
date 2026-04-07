@@ -397,6 +397,10 @@ var RNCallKeep = class {
   clearInitialEvents() {
     return RNCallKeepModule2.clearInitialEvents();
   }
+  fulfillAction(action, callUUID) {
+    if (!isIOS2) return;
+    return RNCallKeepModule2.fulfillAction(action, callUUID);
+  }
 };
 var index_default = new RNCallKeep();
 export {

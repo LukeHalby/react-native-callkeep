@@ -535,6 +535,12 @@ class RNCallKeep {
   clearInitialEvents(): void {
     return RNCallKeepModule.clearInitialEvents();
   }
+
+  fulfillAction(action: string, callUUID: string): void {
+    if (!isIOS) return;
+
+    return RNCallKeepModule.fulfillAction(action, callUUID);
+  }
 }
 
 export default new RNCallKeep();

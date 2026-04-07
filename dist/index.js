@@ -423,6 +423,10 @@ var RNCallKeep = class {
   clearInitialEvents() {
     return RNCallKeepModule2.clearInitialEvents();
   }
+  fulfillAction(action, callUUID) {
+    if (!isIOS2) return;
+    return RNCallKeepModule2.fulfillAction(action, callUUID);
+  }
 };
 var index_default = new RNCallKeep();
 // Annotate the CommonJS export names for ESM import in node:
