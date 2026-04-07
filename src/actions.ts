@@ -1,4 +1,4 @@
-import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
+import { NativeModules, NativeEventEmitter, Platform, EmitterSubscription } from 'react-native';
 
 const RNCallKeepModule = NativeModules.RNCallKeep;
 const eventEmitter = new NativeEventEmitter(RNCallKeepModule);
@@ -22,7 +22,9 @@ const RNCallKeepDidChangeAudioRoute = 'RNCallKeepDidChangeAudioRoute';
 const RNCallKeepHasActiveCall = 'RNCallKeepHasActiveCall';
 const isIOS = Platform.OS === 'ios';
 
-const didReceiveStartCallAction = handler => {
+type Handler = (data: any) => void;
+
+const didReceiveStartCallAction = (handler: Handler): EmitterSubscription => {
   if (isIOS) {
     // Tell CallKeep that we are ready to receive `RNCallKeepDidReceiveStartCallAction` event and prevent delay
     RNCallKeepModule._startCallActionEventListenerAdded();
@@ -31,66 +33,69 @@ const didReceiveStartCallAction = handler => {
   return eventEmitter.addListener(RNCallKeepDidReceiveStartCallAction, (data) => handler(data));
 };
 
-const answerCall = handler =>
+const answerCall = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepPerformAnswerCallAction, (data) => handler(data));
 
-const endCall = handler =>
+const endCall = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepPerformEndCallAction, (data) => handler(data));
 
-const didChangeAudioRoute = handler =>
+const didChangeAudioRoute = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepDidChangeAudioRoute, handler);
 
-const didActivateAudioSession = handler =>
+const didActivateAudioSession = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepDidActivateAudioSession, handler);
 
-const didDeactivateAudioSession = handler =>
+const didDeactivateAudioSession = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepDidDeactivateAudioSession, handler);
 
-const didDisplayIncomingCall = handler => eventEmitter.addListener(RNCallKeepDidDisplayIncomingCall, data => {
-  // On Android the payload parameter is sent a String
-  // As it requires too much code on Android to convert it to WritableMap, let's do it here.
-  if (data.payload && typeof data.payload === 'string') {
-    try {
-      data.payload = JSON.parse(data.payload);
-    } catch (_) {
+const didDisplayIncomingCall = (handler: Handler): EmitterSubscription =>
+  eventEmitter.addListener(RNCallKeepDidDisplayIncomingCall, (data) => {
+    // On Android the payload parameter is sent a String
+    // As it requires too much code on Android to convert it to WritableMap, let's do it here.
+    if (data.payload && typeof data.payload === 'string') {
+      try {
+        data.payload = JSON.parse(data.payload);
+      } catch (_) {
+      }
     }
-  }
-  handler(data);
-});
+    handler(data);
+  });
 
-const didPerformSetMutedCallAction = handler =>
+const didPerformSetMutedCallAction = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepDidPerformSetMutedCallAction, (data) => handler(data));
 
-const onHasActiveCall = handler =>
+const onHasActiveCall = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepHasActiveCall, handler);
 
-const didToggleHoldCallAction = handler =>
+const didToggleHoldCallAction = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepDidToggleHoldAction, handler);
 
-const didPerformDTMFAction = handler =>
+const didPerformDTMFAction = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepDidPerformDTMFAction, (data) => handler(data));
 
-const didResetProvider = handler =>
+const didResetProvider = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepProviderReset, handler);
 
-const checkReachability = handler =>
+const checkReachability = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepCheckReachability, handler);
 
-const didLoadWithEvents = handler =>
+const didLoadWithEvents = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepDidLoadWithEvents, handler);
 
-const showIncomingCallUi = handler =>
+const showIncomingCallUi = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepShowIncomingCallUi, (data) => handler(data));
 
-const silenceIncomingCall = handler =>
+const silenceIncomingCall = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepOnSilenceIncomingCall, (data) => handler(data));
 
-const createIncomingConnectionFailed = handler =>
+const createIncomingConnectionFailed = (handler: Handler): EmitterSubscription =>
   eventEmitter.addListener(RNCallKeepOnIncomingConnectionFailed, (data) => handler(data));
 
-export const emit = (eventName, payload) => eventEmitter.emit(eventName, payload);
+export const emit = (eventName: string, payload?: any): void => {
+  eventEmitter.emit(eventName, payload);
+};
 
-export const listeners = {
+export const listeners: Record<string, (handler: Handler) => EmitterSubscription> = {
   didReceiveStartCallAction,
   answerCall,
   endCall,
@@ -107,5 +112,5 @@ export const listeners = {
   silenceIncomingCall,
   createIncomingConnectionFailed,
   didChangeAudioRoute,
-  onHasActiveCall
+  onHasActiveCall,
 };
