@@ -1,3 +1,19 @@
+# Changes
+
+This forked version of `react-native-callkeep` differs from the `react-native-webrtc` [repository](https://github.com/react-native-webrtc/react-native-callkeep) in the following ways:
+
+## Typescript & File Structure
+
+JS/TS source files now live in the `/src` directory and are natively Typescript. Imported/distibuted JS/TS files are now built with the `build` script located in `package.json`. The `package.json` `main`, `module`, and `types` properties reflect this change.
+
+## Action Fulfillment (IOS)
+
+Actions such as `CXStartCallAction` often require asynchronous code (i.e. network requests) to execute in order to be accomplished. This repo allows for the deferment of action fulfillment by allowing the user to call `RNCallKeep.fulfillAction` in order to notify the system that an asynchronous function has settled and that it can stop waiting.
+
+```typescript
+RNCallKeep.fulfillAction(action: string, callUUID: string): void
+```
+
 # React Native CallKeep
 
 [![npm version](https://badge.fury.io/js/react-native-callkeep.svg)](https://badge.fury.io/js/react-native-callkeep)
